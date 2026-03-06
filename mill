@@ -1,15 +1,7 @@
-#!/usr/bin/env sh
-
-# This is a wrapper script, that automatically download mill from GitHub release pages
-# You can give the required mill version with --mill-version parameter
-# If no version is given, it falls back to the value of DEFAULT_MILL_VERSION
-#
-# Original Project page: https://github.com/lefou/millw
-# Script Version: 0.4.12
-#
-# If you want to improve this script, please also contribute your changes back!
-#
+# Copyright (c) 2026 FZI Forschungszentrum Informatik
 # Licensed under the Apache License, Version 2.0
+
+# Based on: https://github.com/lefou/millw - Script Version: 0.4.12
 
 set -e
 

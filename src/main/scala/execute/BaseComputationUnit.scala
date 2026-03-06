@@ -1,7 +1,13 @@
-package openaccelerator.execute
+/*
+ * Copyright (c) 2026 FZI Forschungszentrum Informatik
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package opera.execute
 
 import chisel3._
 import chisel3.util._
+import opera.types.DataflowType
 
 // Bundle for the data payload (stationary + data vector)
 class CUBusPayload[T <: Data](numElements: Int, dataType: T) extends Bundle {
@@ -16,7 +22,11 @@ case class ComputationUnitConfig[T <: Data, U <: Data, V <: Data](
   ADataType: T,
   BDataType: U,
   DDataType: V,
-)
+  supportedDataflows: Seq[DataflowType]){
+    def hasDataflow(dataflow: DataflowType): Bool = {
+      supportedDataflows.contains(dataflow).B
+    } 
+  } 
 
 // Abstract base class for ComputationUnit
 abstract class BaseComputationUnit[T <: Data, U <: Data, V <: Data](config: ComputationUnitConfig[T, U, V]) extends Module {
@@ -29,4 +39,10 @@ abstract class BaseComputationUnit[T <: Data, U <: Data, V <: Data](config: Comp
     // Output bus - Decoupled for output
     val out_c = Decoupled(new CUBusPayload(config.N, config.DDataType))
   })
+
+  // Default signals
+  io.in_a.ready := true.B
+  io.in_b.ready := true.B
+  io.in_d.ready := true.B
+  io.out_c.bits.stationary := false.B
 }

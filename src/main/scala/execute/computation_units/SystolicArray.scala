@@ -1,9 +1,14 @@
-package openaccelerator.execute.computation_units
+/*
+ * Copyright (c) 2026 FZI Forschungszentrum Informatik
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package opera.execute.computation_units
 
 import chisel3._
 import chisel3.util._
 
-import openaccelerator.execute.{BaseComputationUnit, ComputationUnitConfig, CUBusPayload}  
+import opera.execute.{BaseComputationUnit, ComputationUnitConfig, CUBusPayload}  
 
 // Processing Element for the systolic array
 class ProcessingElement[T <: Data, U <: Data, V <: Data](
@@ -72,7 +77,7 @@ class WeightStationarySystolicArray[T <: Data, U <: Data, V <: Data](
     Module(new ProcessingElement(config.ADataType, config.BDataType, config.DDataType))
   }
 
-  val output_queue = Module(new Queue(io.out_c.bits.cloneType, 2))
+  val output_queue = Module(new Queue(io.out_c.bits.cloneType, 2)).suggestName("output_queue")
 
   // Connect PE arrays between them
   for (row <- 0 until config.N) {
@@ -109,7 +114,9 @@ class WeightStationarySystolicArray[T <: Data, U <: Data, V <: Data](
 
       if(col == config.K - 1)
       {
-        output_queue.io.enq.valid := ShiftRegister(pe.io.partial_sum_valid_out, config.N-row)
+        if(row == config.N - 1){
+          output_queue.io.enq.valid := ShiftRegister(pe.io.partial_sum_valid_out, 1)
+        } 
         output_queue.io.enq.bits.data(row) := ShiftRegister(pe.io.partial_sum_out, config.N-row)
         output_queue.io.enq.bits.stationary := false.B
       } 

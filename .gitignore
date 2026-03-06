@@ -1,3 +1,6 @@
+.devenv/
 build/
 out/
 target/
+*.info
+generated-src/
