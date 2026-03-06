@@ -13,7 +13,11 @@ import mill.bsp._
 // to properly generate and handle test directories and output files.
 // See: https://github.com/com-lihaoyi/mill/issues/3840
 
-object OpenAccelerator extends SbtModule { m =>
+val standalone = sys.env.get("OPERA_STANDALONE").isDefined
+
+object OPERA extends SbtModule { m =>
+  println(standalone)
+  override def allSourceFiles = if(standalone) super.allSourceFiles().filterNot(_.path.segments.contains("chipyard")) else super.allSourceFiles()
   override def millSourcePath = super.millSourcePath / os.up
   override def scalaVersion = "2.13.16"
   def chiselVersion = "7.0.0"
@@ -32,7 +36,9 @@ object OpenAccelerator extends SbtModule { m =>
   )
   object test extends SbtTests with TestModule.ScalaTest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
-      ivy"org.scalatest::scalatest::3.2.19"
+      ivy"org.scalatest::scalatest::3.2.19",
+      ivy"org.scalatest::scalatest:3.2.18",
+      ivy"edu.berkeley.cs::chiseltest:0.6.0"
     )
   }
 }

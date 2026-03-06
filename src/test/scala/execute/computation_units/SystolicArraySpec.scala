@@ -1,10 +1,18 @@
+/*
+ * Copyright (c) 2026 FZI Forschungszentrum Informatik
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package opera.test
+
 import chisel3._
 import chisel3.simulator.scalatest._
 import org.scalatest.funspec.AnyFunSpec
-import openaccelerator.execute.{ComputationUnitConfig, CUBusPayload} 
-import openaccelerator.execute.computation_units.{ProcessingElement, WeightStationarySystolicArray} 
+import opera.execute.{ComputationUnitConfig, CUBusPayload} 
+import opera.execute.computation_units.{ProcessingElement, WeightStationarySystolicArray} 
+import opera.types.DataflowType
 
-class ProcessingElementTest extends AnyFunSpec with ChiselSim {
+class ProcessingElementTest extends AnyFunSpec with CustomChiselSim {
   describe("ProcessingElement"){
     it("should load and store weight correctly"){
         simulate(new ProcessingElement(SInt(16.W), SInt(16.W), SInt(32.W))) { dut =>
@@ -102,13 +110,14 @@ class WeightStationarySystolicArrayTest extends AnyFunSpec with ChiselSim {
   describe("WeightStationarySystolicArray")
   {
     it("should load weights correctly"){
-        val config = ComputationUnitConfig(
-      N = 2,
-      K = 3,
-      ADataType = SInt(16.W),
-      BDataType = SInt(16.W),
-      DDataType = SInt(32.W)
-    )
+      val config = ComputationUnitConfig(
+        N = 2,
+        K = 3,
+        ADataType = SInt(16.W),
+        BDataType = SInt(16.W),
+        DDataType = SInt(32.W),
+        supportedDataflows = Seq(DataflowType.WS)
+      )
     
     simulate(new WeightStationarySystolicArray(config)) { dut =>
       // Initialize inputs
@@ -152,13 +161,14 @@ class WeightStationarySystolicArrayTest extends AnyFunSpec with ChiselSim {
     } 
 
     it("should perform simple matrix-matrix multiplication"){
-        val config = ComputationUnitConfig(
-      N = 2,
-      K = 3,
-      ADataType = SInt(16.W),
-      BDataType = SInt(16.W),
-      DDataType = SInt(32.W)
-    )
+      val config = ComputationUnitConfig(
+        N = 2,
+        K = 3,
+        ADataType = SInt(16.W),
+        BDataType = SInt(16.W),
+        DDataType = SInt(32.W),
+        supportedDataflows = Seq(DataflowType.WS)
+      )
 
     // | 1 | 2 | 3 |   | 1 | 2 | 3 |   | 1 | 3 |   | 15 | 35 | 
     // | 4 | 5 | 6 | * | 4 | 5 | 6 | + | 2 | 4 | = | 34 | 81 | 
