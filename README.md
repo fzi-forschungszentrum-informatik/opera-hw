@@ -58,3 +58,17 @@ If you want to execute a specific test, you can use:
     ./mill OPERA.test.testOnly opera.test.<spec name>
 
 Note: If it fails, it may be because the 'out' folder already exists. Delete the folder and try again.
+
+## License
+
+This program is licensed under the [Apache License 2.0](./LICENSE).
+
+## Acknowledgment
+
+<img src="./docs/BMFTR_sponsored.jpg" alt="sponsored by BMFTR" height="150">
+<img src="./docs/CHIPS logo_RGB_full colour.jpg" alt="CHIPS JU" height="150">
+<img src="./docs/European_Partnership-100.jpg" alt="European Partnership" height="150">
+
+Development of this program was partially funded by the German Federal Ministry
+of Research, Technology, and Space (BMFTR) within the ChipsJU project RIGOLETTO
+(project number 101194371, grant number 16MEE0547).
