@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPERA_STANDALONE: 1
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  compile:
+    name: compile
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Compile
+        run: ./mill OPERA.compile
+
+  test:
+    name: test
+    needs: compile
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Dependencies
+        run: |
+          sudo apt-get install verilator
+          verilator --version
+          
+      - name: Test
+        run: ./mill OPERA.test
+
+      - name: Merge Verilator coverage
+        run: verilator_coverage -write-info merged.info $(find ./build -name coverage.dat)
+
+      - name: Upload coverage data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            merged.info
+            build/**/coverage.dat
+          if-no-files-found: warn
+          retention-days: 7
+
+  coverage:
+    name: coverage
+    needs: test
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+
+      - name: Setup Dependencies
+        run: |
+          sudo apt-get install lcov
+          
+      - name: Remove non-OPERA coverage
+        run: lcov --remove merged.info "testbench.sv" "Mock*" "TwoPortSRAM" "opera_sram*" "ram_*" > merged_filtered.info
+
+      - name: Group coverage by filename
+        run: python3 coverage_helper.py merged_filtered.info
+
+      - name: Coverage summary
+        run: lcov --summary grouped_coverage.info | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            grouped_coverage.info
+          retention-days: 7
