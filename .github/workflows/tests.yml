@@ -84,6 +84,10 @@ jobs:
         with:
           name: coverage
 
+      - name: Setup Dependencies
+        run: |
+          sudo apt-get install lcov
+          
       - name: Remove non-OPERA coverage
         run: lcov --remove merged.info "testbench.sv" "Mock*" "TwoPortSRAM" "opera_sram*" "ram_*" > merged_filtered.info
 
@@ -98,6 +102,5 @@ jobs:
         with:
           name: coverage-report
           path: |
-            merged_filtered.info
             grouped_coverage.info
           retention-days: 7
