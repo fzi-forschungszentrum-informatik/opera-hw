@@ -25,6 +25,11 @@ jobs:
         with:
           submodules: false
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Compile
         run: ./mill OPERA.compile
 
@@ -37,6 +42,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Test
         run: ./mill OPERA.test
